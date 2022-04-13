@@ -1,0 +1,107 @@
+<?php
+include('../conn.php');
+     
+$json='[
+	{
+		"query": {
+			"sfsql": "SELECT $s:blog.post.altimage as \'altimage\',$i:blog.post.id as \'id\',$s:blog.post.imageurl as \'imageurl\',$s:blog.post.markup as \'markup\',$s:blog.post.slug as \'markup\',$s:blog.post.slug as \'slug\',$s:blog.post.status as \'status\',$s:blog.post.title as \'title\',$d:blog.post.createdate as \'createdate\'"
+		}
+	}
+	
+]';
+$results=runBetaSFSQL($json);
+$results = json_decode($results,true); 
+?>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Cloud SFSQL Low Code - Admin - BlogPost</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="admin.css" rel="stylesheet" type="text/css">
+	</head>
+	
+	<body class="admin">
+<?php include('include/menu.php');?>
+		<div class="admin-wrap wrap-wider">
+					<div class="page-caption">
+				Blog Posts
+			</div>
+			 
+			<div id="custlist">
+				<div class="table-header">
+					<div class="table-header-cell">
+						Edit Post
+					</div>
+					<div class="table-header-cell">
+						Status
+					</div>
+					<div class="table-header-cell">
+						View Post
+					</div>
+					<!--
+					<div class="table-header-cell">
+						Image URL
+					</div>
+					<div class="table-header-cell">
+						Alt Image
+					</div>
+					<div class="table-header-cell">
+						Slug
+					</div>
+					-->
+					
+					
+				</div>
+				<div class="table-body">
+
+				<?php	foreach ($results[0]['data'] as $row) { ?>
+					<div class="table-row" data-id="<?php echo($row['id']);?>">
+						<div class="table-cell">
+						<a href="post-admin.html?id=<?php echo($row['id']);?>"><?php echo($row['title']);?></a>
+						</div>
+						<div class="table-cell">
+							<?php echo($row['status']);?>
+						</div>
+						<div class="table-cell">
+							<a target="post" href="../blogpost.html?id=<?php echo($row['id']);?>">View</a>
+						</div>
+						<!--
+						<div class="table-cell">
+							<?php echo($row['createdate']);?>
+						</div>
+						<div class="table-cell">
+							<?php echo($row['imageurl']);?>
+						</div>
+						<div class="table-cell">
+							<?php echo($row['altimage']);?>
+						</div>
+						<div class="table-cell">
+							<?php echo($row['slug']);?>
+						</div>
+						-->
+						
+					</div>
+				<?php } ?>
+				</div>
+<a id="addCredButtonBottom" class="abutton" href="post-add-admin.html">Add Post</a>
+			</div>
+			
+
+
+
+		
+		</div>
+<script>
+			//const eary = document.getElementsByClassName("table-cell");
+			//for (var i = 0; i < eary.length; i++) {
+			//	eary[i].onclick = rowclick;
+		//	}
+
+			function rowclick(e) {
+				var row = e.target.closest('.table-row');
+				var id = row.attributes['data-id'].value;
+				window.open('post-admin.html?id=' + id, 'editpost');
+			}
+		</script>
+	</body>
+</html>

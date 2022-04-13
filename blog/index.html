@@ -1,0 +1,101 @@
+<?php 
+require_once('conn.php');
+
+$json='[
+           {
+					"query": {
+						"sfsql": "select $i:blog.post.id as id, $s:blog.post.slug as slug, $d:blog.post.createdate as date, $s:blog.post.title as title, $s:blog.post.imageurl as imageurl where $s:blog.post.status =\'live\' ORDER BY id DESC"
+					}
+				}
+     ]';
+
+     				
+													
+	$results=runBetaSFSQL($json);
+
+	$results= json_decode($results, true);
+	$post=$results[0]['data'];
+	
+?>
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<title>Cloud SFSQL Low Code - Blog</title>
+</head>
+<body class="blog"> 
+ <div class="content flex-vert-wrapper">
+ 
+ <div class="contentWrap">
+ <div class="contentLeft">
+ <div id="doccontent">
+ <div class="subsection">
+ <div class="site-container">
+ <main>
+ <div class="hero">
+ <header class="hero__content">
+ <div class="wrapper">
+ <h1>Welcome to The Cloud SFSQL Low Code Blog</h1>
+ <p><a href="admin/" >admin</a></p>
+ </div>
+ </header>
+ </div>
+ <div class="feed">
+ 
+ <?php 
+ if($post){
+ $arrayLength = count($post);
+ $i = 0;
+  while ($i < $arrayLength){ 
+  
+  $image = ( $post[$i]['imageurl'] ? $post[$i]['imageurl']  : 'https://picsum.photos/200' );
+  
+  ?>
+ 
+<article class="feed__item">
+<div style="width: 100%; display: table;">
+  <div style="display: table-row; height: 100px;">
+		 <div class="feed__image" style="width: 50%; display: table-cell;">
+		 <a href="blogpost.html?id=<?php echo $post[$i]['id'] ?>">
+		 <figure class="hero__image hero__image--overlay">
+		 <img src="<?php echo $image ; ?>">
+		 </figure></a>
+		 </div>
+		 <div style="display: table-cell;  text-align: center; vertical-align:middle;">	
+           <div> 		 
+		     <time datetime="<?php echo $post[$i]['date'] ?>" class="feed__date"><?php echo $post[$i]['date'] ?></time>	
+		     <h2><a href="blogpost.html?id=<?php echo $post[$i]['id'] ?>" class="invert"><?php echo $post[$i]['title'] ?></a></h2>	
+           </div>		 
+		 </div>
+	</div>
+ </div>
+ <p></p>
+</article>
+ 
+<?php   $i++; } 
+}else{
+?>
+<article class="feed__item">
+<div style="width: 100%; display: table;">
+  <div style="display: table-row; height: 100px;">
+No Post Found
+	</div>
+ </div>
+ <p></p>
+</article>
+
+
+<?php 
+} 
+?>
+ 
+ 
+ 
+ 
+ </div>
+ </main>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div> 
+ </div></body></html>

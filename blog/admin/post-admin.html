@@ -1,0 +1,135 @@
+<?php
+include('../conn.php');
+$message='';
+if ($_SERVER['REQUEST_METHOD'] == 'POST' ) {
+
+$markup = $_POST['content'];
+$markupescaped=json_encode($markup, JSON_UNESCAPED_SLASHES);
+$postjson='[
+					{
+						"modify": {
+							"data": {
+								"blog": {
+									"post": {
+										"#set": {
+											"where": "$i:post.id='.$_POST['id'].'"
+										},
+										"i:id": '.$_POST['id'].',
+										"status": "'.$_POST['status'].'",
+										"slug": "'.$_POST['slug'].'",
+										"d:createdate": "'.$_POST['date'].'",
+										"title": "'.$_POST['title'].'",
+										"imageurl": "'.$_POST['imageurl'].'",
+										"altimage": "'.$_POST['alt'].'",
+										"markup": '.$markupescaped.'
+									}
+								}
+							}
+						}
+					}
+				]';
+	
+	 $results = runBetaSFSQL($postjson);
+	 
+ 	 
+	 header('Location: post-admin.html?id='.$_POST['id']);	
+	 die();
+
+}
+
+if(!$_GET['id']){
+
+header('Location: index.html');
+die();
+}
+
+$id=$_GET['id'];
+$json='[
+           {
+					"query": {
+						"sfsql": "select $i:blog.post.id as id, $s:blog.post.slug as slug, $d:blog.post.createdate as date, $s:blog.post.title as title, $s:blog.post.imageurl as imageurl, $s:blog.post.altimage as alt, $s:blog.post.markup as markup,$s:blog.post.status as status where $i:blog.post.id = '.$id.'"
+					}
+				}
+     ]';
+
+   $results = runBetaSFSQL($json);
+	$results= json_decode($results, true);
+	
+	if( !$results[0]['data'] ){
+	
+      header('Location: index.html');
+		die();
+   }
+	
+	
+	$post=$results[0]['data'][0];
+	?>
+	<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>SchemafreeSQL - Admin - BlogPost</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="admin.css" rel="stylesheet" type="text/css">
+
+	</head>
+	
+	<body class="admin">
+<?php include('include/menu.php');?>
+		<div class="admin-wrap wrap-wider">
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+	<!--Post to Live Blog:
+	<input type="radio" id="postlive" name="postlive" value="0" checked>
+	<label>No</label>
+	<input type="radio" id="postlive" name="postlive" value="1">
+	<label>Yes</label><br>
+	-->
+	Post ID: <input type="text" name="id" id="id" value="<?php echo $post['id']; ?>" readonly><br>
+	Post Creation Date: <input type="text" name="date" id="date" value="<?php echo $post['date']; ?>"><br>
+	Post Status: <input type="radio" id="status" name="status" value="draft" <?php echo ( $post['status'] == 'draft' ? 'checked' : ''); ?>>
+	             <label>Draft</label>
+	             <input type="radio" id="status" name="status" value="live" <?php echo ( $post['status'] == 'live' ? 'checked' : ''); ?>>
+	             <label>Live</label><br>
+	Post Title: <input type="text" name="title" id="title" size="100" maxlength="255" value="<?php echo $post['title']; ?>"><br>
+	Post Slug: <input type="text" name="slug" id="slug" size="100" maxlength="255" value="<?php echo $post['slug']; ?>"><br>
+	Post Image URL: <input type="url"  pattern="https?://.+" name="imageurl" id="imageurl" size="100" maxlength="255" value="<?php echo $post['imageurl']; ?>"><br>
+	Post ALT Image: <input type="text" name="alt" id="alt" size="100" maxlength="255" value="<?php echo $post['alt']; ?>"><br>
+	<br><br>
+
+	
+        <textarea name="content" id="editor">
+            <?php echo $post['markup']; ?>
+        </textarea>
+        <p><input type="submit" value="Submit"></p>
+    </form>
+
+		
+		
+		</div>
+<script src="js/ckeditor/ckeditor.js"></script>
+
+
+<script>
+ClassicEditor
+			.create( document.querySelector( '#editor' ), {
+					
+					licenseKey: '',
+					
+					
+					
+				} )
+				.then( editor => {
+					window.editor = editor;
+			
+					
+					
+					
+				} )
+				.catch( error => {
+					console.error( 'Oops, something went wrong!' );
+					console.error( 'Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:' );
+					console.warn( 'Build id: ak7yrms1y53p-oj2wpu8ajwqs' );
+					console.error( error );
+				} );
+</script>
+	</body>
+</html>

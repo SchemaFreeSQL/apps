@@ -1,0 +1,139 @@
+[
+	{
+		"delete": {
+			"objfilter": "SELECT $o:DynamicStructures.attrset('delete')"
+		}
+	},
+	{
+		"purge": {}
+	},
+	{
+		"modify": {
+			"data": {
+				"DynamicStructures": {
+					"things": {
+						"camera": [
+							{
+								"__cam1Oid": "!@result.oid@!",
+								"i:id": "1",
+								"name": "FinePix Pro2 3D Camera",
+								"code": "3DcAM01",
+								"n:price": 300.0
+							},
+							{
+								"i:id": "2",
+								"name": "FinePix Pro5 3D Camera",
+								"code": "3DcAM05",
+								"n:price": 800.0
+							}
+						],
+						"o:customer": [
+							{
+								"i:id": 1,
+								"s:first_name": "Larry",
+								"s:last_name": "Smith",
+								"o:address": {
+									"street": "5 Elmwood Avenue",
+									"city": "Rochester",
+									"state": "NY",
+									"zip": "14616"
+								}
+							},
+							{
+								"i:id": "2",
+								"s:first_name": "Jane",
+								"s:last_name": "Scully",
+								"o:address": {
+									"street": "6 Main St",
+									"city": "Clevland",
+									"state": "OH",
+									"zip": "11111"
+								}
+							}
+						],
+						"ball": [
+							{
+								"i:id": "1",
+								"material": "rubber",
+								"n:weighlb": 1.5
+							},
+							{
+								"i:id": "2",
+								"material": "metal",
+								"n:weighlb": 10
+							}
+						]
+					}
+				}
+			}
+		}
+	},
+	{
+		"showattrs": {}
+	},
+	{
+		"modify": {
+			"data": {
+				"DynamicStructures": {
+					"electronics": {
+						"picture_taking_things": [
+							{
+								"#ref": "SELECT $o:.camera.oid() WHERE $i:.camera.id=1"
+							},
+							{
+								"#ref": "SELECT $o:.camera.oid() WHERE $i:.camera.id=2"
+							}
+						]
+					},
+					"people": {
+						"contacts": [
+							{
+								"#ref": "SELECT $o:.customer.oid() WHERE $i:.customer.id=1"
+							},
+							{
+								"#ref": "SELECT $o:.customer.oid() WHERE $i:.customer.id=2"
+							}
+						]
+					},
+					"toys": {
+						"roundtoys": [
+							{
+								"#ref": "SELECT $o:.ball.oid() WHERE $i:.ball.id=1"
+							},
+							{
+								"#ref": "SELECT $o:.ball.oid() WHERE $i:.ball.id=2"
+							}
+						]
+					}
+				}
+			}
+		}
+	},
+	{
+		"showattrs": {}
+	},
+	{
+		"query": {
+			"sfsql": "SELECT $s:DynamicStructures.things.camera.name, $o:DynamicStructures.things.camera.oid(),$s:DynamicStructures.electronics.picture_taking_things.name, $o:DynamicStructures.electronics.picture_taking_things.oid() where $o:DynamicStructures.things.camera.oid() = !@__cam1Oid@! AND $o:DynamicStructures.electronics.picture_taking_things.oid() = !@__cam1Oid@!",
+			"_q": "camera"
+		}
+	},
+	{
+		"delete": {
+			"objfilter": "SELECT $o:.things.attrset('delete')"
+		}
+	},
+	{
+		"purge": {}
+	},
+	{
+		"showattrs": {}
+	},
+	{
+		"query": {
+			"sfsql": "SELECT $s:DynamicStructures.things.camera.name, $o:DynamicStructures.things.camera.oid(),$s:DynamicStructures.electronics.picture_taking_things.name, $o:DynamicStructures.electronics.picture_taking_things.oid() where $o:DynamicStructures.things.camera.oid() = !@__cam1Oid@! AND $o:DynamicStructures.electronics.picture_taking_things.oid() = !@__cam1Oid@!",
+			"_q": "camera"
+		}
+	}
+	
+]

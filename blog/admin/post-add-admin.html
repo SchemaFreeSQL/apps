@@ -1,0 +1,117 @@
+<?php
+include('../conn.php');
+$message='';
+if ($_SERVER['REQUEST_METHOD'] == 'POST' ) {
+$date = ( $_POST['date'] ? $_POST['date'] : 'now' );
+$markup = $_POST['content'];
+$markupescaped=json_encode($markup, JSON_UNESCAPED_SLASHES);
+$postjson='[
+					{
+						"modify": {
+							"data": {
+								"blog": {
+									"post": {
+										"#set": {
+											"where": "$i:post.id='.$_POST['id'].'"
+										},
+										"i:id": '.$_POST['id'].',
+										"status": "'.$_POST['status'].'",
+										"slug": "'.$_POST['slug'].'",
+										"d:createdate": "'.$date.'",
+										"title": "'.$_POST['title'].'",
+										"imageurl": "'.$_POST['imageurl'].'",
+										"altimage": "'.$_POST['alt'].'",
+										"markup": '.$markupescaped.'
+									}
+								}
+							}
+						}
+					}
+				]';
+
+	 $results = runBetaSFSQL($postjson,true);
+
+	 header('Location: post-admin.html?id='.$_POST['id']);	
+	 die();
+
+}
+
+
+$json='[
+           {
+					"query": {
+						"sfsql": "select $i:blog.post.id as id order by id DESC limit 1"
+					}
+				}
+     ]';
+
+   $results = runBetaSFSQL($json);
+	//echo  $results;
+	//die();
+	$results= json_decode($results, true);
+	$newid=1;
+	if( !empty($results[0]['data'][0]['id']) ){
+	$id=$results[0]['data'][0]['id'];
+	$newid= $id+1;
+	}
+	?>
+	<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>SchemafreeSQL - Admin - BlogPost</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="admin.css" rel="stylesheet" type="text/css">
+
+	</head>
+	
+	<body class="admin">
+<?php include('include/menu.php');?>
+		<div class="admin-wrap wrap-wider">
+<form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+	Post ID: <input type="text" name="id" id="id" value="<?php echo $newid; ?>" readonly><br>
+	Post Creation Date: <input type="text" name="date" id="date" value=""><br>
+	Post Status: <input type="text" name="status" id="status" value="draft"><br>
+	Post Title: <input type="text" name="title" id="title" size="100" maxlength="255" value=""><br>
+	Post Slug: <input type="text" name="slug" id="slug" size="100" maxlength="255" value=""><br>
+	Post Image URL: <input type="url"  pattern="https?://.+" name="imageurl" id="imageurl" size="100" maxlength="255" value=""><br>
+	Post ALT Image: <input type="text" name="alt" id="alt" size="100" maxlength="255" value=""><br>
+	<br><br>
+
+	
+        <textarea name="content" id="editor">
+           
+        </textarea>
+        <p><input type="submit" value="Submit"></p>
+    </form>
+
+		
+		
+		</div>
+<script src="js/ckeditor/ckeditor.js"></script>
+
+
+<script>
+ClassicEditor
+			.create( document.querySelector( '#editor' ), {
+					
+					licenseKey: '',
+					
+					
+					
+				} )
+				.then( editor => {
+					window.editor = editor;
+			
+					
+					
+					
+				} )
+				.catch( error => {
+					console.error( 'Oops, something went wrong!' );
+					console.error( 'Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:' );
+					console.warn( 'Build id: ak7yrms1y53p-oj2wpu8ajwqs' );
+					console.error( error );
+				} );
+</script>
+	</body>
+</html>
