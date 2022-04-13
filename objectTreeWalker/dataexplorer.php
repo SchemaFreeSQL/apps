@@ -3,10 +3,27 @@ $rootnode=true;
 function SFSQL($data,$format='var') {
 
 	
-$apikey = APIKEY;
-$apiurl = ENDPOINT;
+/*
+Example secrets file
+{
+    "sfsql_id":"",
+    "sfsql_key":"",
+	 "sfsql_host":"",
+	 "sfsql_path":"/api/v1/run",
+}
+
+*/
+	
+	
+	
+$SecretFilePath = '';
+$SecretFileContents = file_get_contents($SecretFilePath);
+$secrets = (array) json_decode($SecretFileContents);
+	
+$url='https://'.$secrets['sfsql_host'].'/'.$secrets['sfsql_id'].$secrets['sfsql_path'];
+$api_key=$secrets['sfsql_key'];
  
-		$ch = curl_init($apiurl);                                                                      
+		$ch = curl_init($url);                                                                      
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                                     
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);                                                                  
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);                                                                      
@@ -14,7 +31,7 @@ $apiurl = ENDPOINT;
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(                                                                          
 			'Content-Type: application/json',                                                                                
 			'Content-Length: ' . strlen($data),
-			 'x-sfsql-apikey: ' . $apikey)                                                                       
+			 'x-sfsql-apikey: ' . api_key)                                                                       
 		); 
 		curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);	
       $result = curl_exec($ch);

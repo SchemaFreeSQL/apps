@@ -1,8 +1,25 @@
 <?php
 function shopAdminSFSQL($json,$encode=false) {
 
-$Url=APIENDPOINT;
-$api_key=APIKEY;
+/*
+Example secrets file
+{
+    "sfsql_id":"",
+    "sfsql_key":"",
+	 "sfsql_host":"",
+	 "sfsql_path":"/api/v1/run",
+}
+
+*/
+	
+	
+	
+$SecretFilePath = '';
+$SecretFileContents = file_get_contents($SecretFilePath);
+$secrets = (array) json_decode($SecretFileContents);
+	
+$url='https://'.$secrets['sfsql_host'].'/'.$secrets['sfsql_id'].$secrets['sfsql_path'];
+$api_key=$secrets['sfsql_key'];
 	
    $ch = curl_init($Url);
 	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");

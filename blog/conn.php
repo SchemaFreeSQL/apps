@@ -3,8 +3,25 @@
 
 function runBetaSFSQL($json,$encode=false) {
 	
-	$api_key = APIKEY;
-	$url = APIENDPOINT;
+/*
+Example secrets file
+{
+    "sfsql_id":"",
+    "sfsql_key":"",
+	 "sfsql_host":"",
+	 "sfsql_path":"/api/v1/run",
+}
+
+*/
+	
+	
+	
+$SecretFilePath = '';
+$SecretFileContents = file_get_contents($SecretFilePath);
+$secrets = (array) json_decode($SecretFileContents);
+	
+$url='https://'.$secrets['sfsql_host'].'/'.$secrets['sfsql_id'].$secrets['sfsql_path'];
+$api_key=$secrets['sfsql_key'];
 	
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
