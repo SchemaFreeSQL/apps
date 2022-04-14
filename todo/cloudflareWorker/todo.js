@@ -113,7 +113,7 @@ async function handleRequest(request) {
     const ipa = request.headers.get('CF-Connecting-IP')
     const ip = ipa.replaceAll('.', ''); 
     const todos = await request.text()
-    const putData = `[{"delete":{"objfilter":"SELECT $o:cftodos.${ip}.attrset('delete')"}},{"purge":{}},{"modify":{"data":{"o:cftodos":{"${ip}": ${todos}}}}},{"query":{"sfsql":"SELECT $i:.${ip}.todos.id as id, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed"}}]`
+    const putData = `[{"delete":{"objfilter":"SELECT $o:cftodos.${ip}.attrset('delete')"}},{"purge":{}},{"modify":{"data":{"o:cftodos":{"${ip}": ${todos}}}}}]`
     const body = putData
     const init = {
       body: body,
@@ -124,7 +124,7 @@ async function handleRequest(request) {
       },
     };
     const response = await fetch(url, init);
-    return  await getTodos(await response.json());
+    return new Response(body, { status: 200 })
   } else {
     const ipa = request.headers.get('CF-Connecting-IP')
     const ip = ipa.replaceAll('.', ''); 
