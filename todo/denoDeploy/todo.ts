@@ -1,5 +1,8 @@
-import { serve } from "https://deno.land/std@0.120.0/http/server.ts";
-import { getIP } from "https://deno.land/x/get_ip/mod.ts";
+import {serve} from "https://deno.land/std@0.120.0/http/server.ts";
+
+function getRemoteAddress (connInfo: ConnInfo): Deno.NetAddr {
+  return connInfo.remoteAddr;
+}
 
 const html = todos => `
 <!DOCTYPE html>
@@ -81,15 +84,11 @@ async function getTodos(data) {
 }else{
    var newdata = defaultData
 }
-
   const body = html(JSON.stringify(newdata.todos || []).replace(/</g, "\\u003c"))
-
-
   return new Response(body, {
     headers: { 'Content-Type': 'text/html' },
   })
 }
-
 
 async function gatherResponse(response) {
   const { headers } = response;
@@ -110,12 +109,12 @@ async function gatherResponse(response) {
   }
 }
 
-async function handler(request) {
+async function handler(request,connInfo) {
     if (request.method === 'PUT') {
-    const ipa = await getIP({ipv6: true});
-    const ip = ipa.replaceAll('.', '');  
+    const {hostname} = getRemoteAddress(connInfo);
+    const ip = hostname.replaceAll('.', '').replaceAll(':', '');
     const todos = await request.text()
-    const putData = `[{"delete":{"objfilter":"SELECT $o:cftodos.${ip}.attrset('delete')"}},{"purge":{}},{"modify":{"data":{"o:cftodos":{"${ip}": ${todos}}}}},{"query":{"sfsql":"SELECT $i:.${ip}.todos.id as id, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed"}}]`
+    const putData = `[{"delete":{"objfilter":"SELECT $o:cftodos.${ip}.attrset('delete')"}},{"purge":{}},{"modify":{"data":{"o:cftodos":{"${ip}": ${todos}}}}}]`
     const body = putData
     const init = {
       body: body,
@@ -126,10 +125,10 @@ async function handler(request) {
       },
     };
     const response = await fetch(url, init);
-    return  await getTodos(await response.json());
+    return new Response(body, { status: 200 })
   } else {
-    const ipa = await getIP({ipv6: true});
-    const ip = ipa.replaceAll('.', ''); 
+    const {hostname} = getRemoteAddress(connInfo);
+    const ip = hostname.replaceAll('.', '').replaceAll(':', '');
     const QData = `[{"query":{"sfsql":"SELECT $i:.${ip}.todos.id as id, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed"}}]`
     const body = QData
     const init = {
@@ -143,10 +142,8 @@ async function handler(request) {
     const response = await fetch(url, init);
     const results = await gatherResponse(response);
     return getTodos(results["data"])
-
   }
 }
-
 
 console.log("Listening on http://localhost:8000");
 serve(handler);
