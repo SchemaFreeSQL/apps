@@ -67,7 +67,7 @@ for (var j = 0; j < prods.length; j++){
 	 Object.entries(prods[j]).forEach(entry => {
 		  const [key, value] = entry;
 		  if(key== 'image'){ 
-		   document.write('<img src="http://sfsqlblogimages.s3.amazonaws.com/product-images/'+ value +'"/><br>'); 
+		   document.write('<img src="https://sfsqlblogimages.s3.amazonaws.com/product-images/'+ value +'"/><br>'); 
 			}else{
 			document.write(key + ": " +  value + "<br>");  
 			}
@@ -114,7 +114,7 @@ var t = 0;
 for (var j = 0; j < items1.length; j++){
       document.write("<tr>"); 
 		document.write("<td>" + items1[j]['no'] + "</td>"); 
-		document.write('<td><img src="http://sfsqlblogimages.s3.amazonaws.com/product-images/' + items1[j]['image'] + '"/><br>' + items1[j]['name'] + '</td>'); 
+		document.write('<td><img src="https://sfsqlblogimages.s3.amazonaws.com/product-images/' + items1[j]['image'] + '"/><br>' + items1[j]['name'] + '</td>'); 
 	   document.write("<td>" + items1[j]['code'] + "</td>"); 
 		document.write("<td>" + items1[j]['manname'] + "</td>");
 		document.write("<td>" + items1[j]['quantity'] + "</td>"); 
@@ -141,7 +141,7 @@ var t = 0;
 for (var j = 0; j < items2.length; j++){
       document.write("<tr>"); 
 		document.write("<td>" + items2[j]['no'] + "</td>"); 
-		document.write('<td><img src="http://sfsqlblogimages.s3.amazonaws.com/product-images/' + items2[j]['image'] + '"/><br>' + items2[j]['name'] + '</td>'); 
+		document.write('<td><img src="https://sfsqlblogimages.s3.amazonaws.com/product-images/' + items2[j]['image'] + '"/><br>' + items2[j]['name'] + '</td>'); 
 	   document.write("<td>" + items2[j]['code'] + "</td>"); 
 		document.write("<td>" + items2[j]['manname'] + "</td>");
 		document.write("<td>" + items2[j]['quantity'] + "</td>"); 
