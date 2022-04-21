@@ -213,73 +213,61 @@ var populateTodos = function(newtodos) {
 const url = endpoint;
 const defaultData = { todos: [] }
 
-async function getTodos(data) {
-    if (typeof data[0] !== 'undefined'){
-    var todos=data;
-    }else{
-    var todos = defaultData.todos
-    }
-
-    const body = html(JSON.stringify(todos || []).replace(/</g, "\\u003c"))
-
-    return new Response(body, {
-        headers: { 'Content-Type': 'text/html' },
-    })
-
-}
-
 async function handleRequest(request) {
     if (request.method === 'POST') {
-    const ipa = request.headers.get('CF-Connecting-IP')
-    const ip = ipa.replaceAll('.', '').replaceAll(':', '');
-    const todos = await request.text()
-    const updatedtodo = JSON.parse(todos);
-    const oid = updatedtodo.todos.oid;
-    const todostring=JSON.stringify(updatedtodo.todos);
-    const putData = `[{"modify":{"data":{"o:cftodos":{"${ip}":{"todos":[{"#set":{"where":"$o:todos.oid()=${oid}"}},${todostring}]}}}}},{"query":{"sfsql":"SELECT $o:.${ip}.todos.oid() as oid, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed,$$s:.${ip}.todos.desc as desc ORDER BY oid ASC"}}]`
-    const body = putData
-    const init = {
-      body: body,
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json;charset=UTF-8',
-        'x-sfsql-apikey': api_key,
-      },
-    };
-    const response = await fetch(url, init);
-    const data =  JSON.stringify(await response.json());
+            const ipa = request.headers.get('CF-Connecting-IP')
+            const ip = ipa.replaceAll('.', '').replaceAll(':', '');
+            const todos = await request.text()
+            const updatedtodo = JSON.parse(todos);
+            const oid = updatedtodo.todos.oid;
+            const todostring=JSON.stringify(updatedtodo.todos);
+            const putData = `[{"modify":{"data":{"o:cftodos":{"${ip}":{"todos":[{"#set":{"where":"$o:todos.oid()=${oid}"}},${todostring}]}}}}},{"query":{"sfsql":"SELECT $o:.${ip}.todos.oid() as oid, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed,$$s:.${ip}.todos.desc as desc ORDER BY oid ASC"}}]`
+            const body = putData
+            const init = {
+            body: body,
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json;charset=UTF-8',
+                'x-sfsql-apikey': api_key,
+            },
+            };
+            const response = await fetch(url, init);
+            const data =  JSON.stringify(await response.json());
 
-    return new Response(data, {
-    headers: { 'Content-Type': 'application/json;charset=UTF-8' },
-  })
+            return new Response(data, {
+            headers: { 'Content-Type': 'application/json;charset=UTF-8' },
+            })
+    } else {
 
-    //return new Response(body, { status: 200 })
-
-  } else {
-
-    const ipa = request.headers.get('CF-Connecting-IP');
-    const ip = ipa.replaceAll('.', '').replaceAll(':', '');
-    const QData = `[{"query":{"sfsql":"SELECT $o:.${ip}.todos.oid() as oid, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed,$$s:.${ip}.todos.desc as desc ORDER BY oid ASC"}}]`
-    const body = QData
-    const init = {
-      body: body,
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json;charset=UTF-8',
-        'x-sfsql-apikey': api_key,
-      },
-    };
-    const response = await fetch(url, init);
-    const data =  await response.json();
- 
-    if(data[0]["data"] == undefined){
-      return getTodos(defaultData)
-    }else{
-       const results = data[0]["data"];
-       return getTodos(results)
-    }  
-
-  }
+            const ipa = request.headers.get('CF-Connecting-IP');
+            const ip = ipa.replaceAll('.', '').replaceAll(':', '');
+            const QData = `[{"query":{"sfsql":"SELECT $o:.${ip}.todos.oid() as oid, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed,$$s:.${ip}.todos.desc as desc ORDER BY oid ASC"}}]`
+            const body = QData
+            const init = {
+            body: body,
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json;charset=UTF-8',
+                'x-sfsql-apikey': api_key,
+            },
+            };
+            const response = await fetch(url, init);
+            const data =  await response.json();
+        
+                if(typeof data[0] == undefined){
+                    var todos = defaultData.todos
+                    const results = html(JSON.stringify(todos || []).replace(/</g, "\\u003c"))
+                    return new Response(results, {
+                        headers: { 'Content-Type': 'text/html' },
+                        })
+                }else{
+                    var todos = data[0]["data"]
+                    const results = html(JSON.stringify(todos || []).replace(/</g, "\\u003c"))
+                        return new Response(results, {
+                        headers: { 'Content-Type': 'text/html' },
+                        })
+                }  
+   }
 }
 
 addEventListener('fetch', event => {
