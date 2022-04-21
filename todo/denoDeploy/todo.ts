@@ -224,70 +224,60 @@ var populateTodos = function(newtodos) {
 
 const url = Deno.env.get('endpoint');
 const defaultData = { todos: [] }
-
-async function getTodos(data) {
-  if (typeof data !== 'undefined'){
-     var todos=data;
-}else{
-    var todos = defaultData.todos
-}
-  const body = html(JSON.stringify(todos || []).replace(/</g, "\\u003c"))
-  return new Response(body, {
-    headers: { 'Content-Type': 'text/html' },
-  })
-}
-
 async function handler(request,connInfo) {
     if (request.method === 'POST') {
-    const {hostname} = getRemoteAddress(connInfo);
-    const ip = hostname.replaceAll('.', '').replaceAll(':', '');
-    const todos = await request.text()
-    const updatedtodo = JSON.parse(todos);
-    const oid = updatedtodo.todos.oid;
-    const todostring=JSON.stringify(updatedtodo.todos);
-    const putData = `[{"modify":{"data":{"o:cftodos":{"${ip}":{"todos":[{"#set":{"where":"$o:todos.oid()=${oid}"}},${todostring}]}}}}},{"query":{"sfsql":"SELECT $o:.${ip}.todos.oid() as oid, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed,$$s:.${ip}.todos.desc as desc ORDER BY oid ASC"}}]`
-    const body = putData
-    const init = {
-      body: body,
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json;charset=UTF-8',
-        'x-sfsql-apikey': Deno.env.get('api_key')
-      },
-    };
-      const response = await fetch(url, init);
-      const data =  JSON.stringify(await response.json());
+          const {hostname} = getRemoteAddress(connInfo);
+          const ip = hostname.replaceAll('.', '').replaceAll(':', '');
+          const todos = await request.text()
+          const updatedtodo = JSON.parse(todos);
+          const oid = updatedtodo.todos.oid;
+          const todostring=JSON.stringify(updatedtodo.todos);
+          const putData = `[{"modify":{"data":{"o:cftodos":{"${ip}":{"todos":[{"#set":{"where":"$o:todos.oid()=${oid}"}},${todostring}]}}}}},{"query":{"sfsql":"SELECT $o:.${ip}.todos.oid() as oid, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed,$$s:.${ip}.todos.desc as desc ORDER BY oid ASC"}}]`
+          const body = putData
+          const init = {
+            body: body,
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json;charset=UTF-8',
+              'x-sfsql-apikey': Deno.env.get('api_key')
+            },
+          };
+            const response = await fetch(url, init);
+            const data =  JSON.stringify(await response.json());
 
-      return new Response(data, {
-      headers: { 'Content-Type': 'application/json;charset=UTF-8'},
-    })
-
-
-  } else {
-    const {hostname} = getRemoteAddress(connInfo);
-    const ip = hostname.replaceAll('.', '').replaceAll(':', '');
-    const QData = `[{"query":{"sfsql":"SELECT $o:.${ip}.todos.oid() as oid, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed,$$s:.${ip}.todos.desc as desc ORDER BY oid ASC"}}]`
-    const body = QData
-    const init = {
-      body: body,
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json;charset=UTF-8',
-        'x-sfsql-apikey': Deno.env.get('api_key')
-      },
-    };
-    const response = await fetch(url, init);
-    const data =  await response.json();
-
-    if(data[0]["data"] == undefined){
-      return getTodos(defaultData)
+            return new Response(data, {
+            headers: { 'Content-Type': 'application/json;charset=UTF-8'},
+          })
     }else{
-       const results = data[0]["data"];
-       return getTodos(results)
-    }  
-
-  }
+        const {hostname} = getRemoteAddress(connInfo);
+        const ip = hostname.replaceAll('.', '').replaceAll(':', '');
+        const QData = `[{"query":{"sfsql":"SELECT $o:.${ip}.todos.oid() as oid, $s:.${ip}.todos.name as name, $b:.${ip}.todos.completed as completed,$$s:.${ip}.todos.desc as desc ORDER BY oid ASC"}}]`
+        const body = QData
+        const init = {
+          body: body,
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json;charset=UTF-8',
+            'x-sfsql-apikey': Deno.env.get('api_key')
+          },
+        };
+        const response = await fetch(url, init);
+        const data =  await response.json();
+        if(typeof data[0]["data"] == undefined){
+          const todos = defaultData.todos
+          const results = html(JSON.stringify(todos || []).replace(/</g, "\\u003c"))
+            return new Response(results, {
+              headers: { 'Content-Type': 'text/html' },
+            })
+        }else{
+            const todos = data[0]["data"];
+            const results = html(JSON.stringify(todos || []).replace(/</g, "\\u003c"))
+            return new Response(results, {
+              headers: { 'Content-Type': 'text/html' },
+            })
+       }  
+    }
 }
 
-console.log("Listening on http://localhost:8000");
+//console.log("Listening on http://localhost:8000");
 serve(handler);
